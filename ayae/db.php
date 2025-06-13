@@ -1,7 +1,7 @@
 <?php
-$dsn = 'pgsql:host=localhost;port=5432;dbname=matsuri';
-$user = 'matsuri';
-$password = 'I6MstEzi';
+$dsn = 'pgsql:host=localhost;port=5432;dbname=ayae';
+$user = 'ayae';
+$password = '7VPF3knJ';
 
 try {
     $pdo = new PDO($dsn, $user, $password);
