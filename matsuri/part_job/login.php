@@ -20,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $user = $stmt->fetch();
         if ($user && password_verify($input_password, $user['password'])) {
             $_SESSION['user_id'] = $user['user_id'];
-            header("Location: mainpage.php");
+            header("Location: toppage.php");
             exit();
         } else {
             $error = "ユーザーIDまたはパスワードが間違っています。";
@@ -30,6 +30,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ログイン</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<?php if (isset($error)) : ?>
+    <p style="color:red;"><?php echo htmlspecialchars($error); ?></p>
+<?php endif; ?>
+
 <form method="POST" action="">
     <div class="form-group">
         <label>ユーザーID:</label>
@@ -42,3 +55,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <button type="submit">ログイン</button>
     <p>*はじめての方は<a href="./register.php">こちら</a>から登録してください。</p>
 </form>
+
+</body>
+</html>

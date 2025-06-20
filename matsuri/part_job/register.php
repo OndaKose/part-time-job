@@ -23,7 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt = $pdo->prepare("INSERT INTO users (user_id, password) VALUES (?, ?)");
             $stmt->execute([$user_id, $hashed_password]);
             $_SESSION['user_id'] = $user_id;
-            header("Location: login.php");
+            header("Location: mainpage.php");
             exit();
         } catch(PDOException $e) {
             if (str_contains($e->getMessage(), 'unique')) {
