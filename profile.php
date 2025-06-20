@@ -1,6 +1,39 @@
 <?php
+session_start();
 // データベース接続
-$dbconn = pg_connect("host=localhost dbname=xx user=xx password=xxx");
+$dsn = 'pgsql:host=localhost;port=5432;dbname=matsuri';
+$user = 'matsuri';
+$password = 'I6MstEzi';
+
+try {
+    $pdo = new PDO($dsn, $user, $password);
+} catch (PDOException $e) {
+    exit('DB接続失敗: ' . $e->getMessage());
+}
+
+// ユーザー情報を取得
+$user_id = $_SESSION['user_id'] ?? null;    // セッションからuser_idを取得
+$sql_user = "SELECT * FROM users WHERE user_id = :user_id";
+$stmt = $pdo->prepare($sql_user);   // セキュリティ対策
+$stmt->bindParam(':user_id', $user_id);
+$stmt->execute();
+$user = $stmt->fetch(PDO::FETCH_ASSOC); // 実行
+
+// 投稿数を取得
+$sql_posts_number = "SELECT COUNT(*) AS content FROM posts WHERE user_id = :user_id";
+$stmt = $pdo->prepare($sql_posts_number);
+$stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+$stmt->execute();
+$posts_number = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// 投稿内容を取得
+$sql_post = "SELECT * FROM posts WHERE user_id = :user_id ORDER BY created_at DESC";
+$stmt = $pdo->prepare($sql_post);
+$stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+$stmt->execute();
+$posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$pdo = null;    // データベース接続を閉じる
 ?>
 
 <html>
@@ -62,16 +95,6 @@ $dbconn = pg_connect("host=localhost dbname=xx user=xx password=xxx");
             margin-bottom: 20px;
         }
 
-        .img {
-            flex-grow: 0; /* 画像のサイズを固定 */
-            width: 100px; /* 画像の幅 */
-            height: 100px; /* 画像の高さ */
-            justify-content: flex-start; /* 水平方向：左に揃える */
-            object-fit: cover; /* 画像の切り抜き */
-            border-radius: 50%; /* 円 */
-            border: 0.5px solid #808080; /* 枠線 */
-        }
-
         /* ユーザー情報部分 */
         .user-info {
             flex-grow: 1;
@@ -88,20 +111,15 @@ $dbconn = pg_connect("host=localhost dbname=xx user=xx password=xxx");
             margin-bottom: 10px;
         }
 
-        /* 職種と投稿数の部分 */
-        .stats {
-            display: flex;
-            justify-content: flex-end; /* 右よせ */
-            gap: 10px;
-            margin-top: 15px;
-        }
-
+        /* 投稿数 */
         .items {
             display: flex;
             flex-direction: column; /* 縦に並べる */
             flex: 1; /* 要素を均等に配置 */
             align-self: flex-start; /* 垂直方向：上に揃える */
             line-height: 1.5; /* 行間 */
+            gap: 10px;
+            margin-top: 15px;
         }
 
         .favorite {
@@ -139,33 +157,16 @@ $dbconn = pg_connect("host=localhost dbname=xx user=xx password=xxx");
     </style>
 </head>
 <body>
-    <div class="header">my profile</div>
+    <div class="header">profile</div>
     <div class="main">
         <div class="side">
             <div class="profile-header">
-                <?php
-                    if (file_exists($posts['file_path'])) {
-                            echo '<img src="' . htmlspecialchars($posts['file_path']) . '" 
-                                    alt="プロフィール画像" 
-                                    class="img">';
-                        }
-                    // アイコン登録していない場合(デフォルト画像)
-                    else {
-                        echo '<img src="http://gms.gdl.jp/~shie/images/アイコン.png"  class="img">';
-                    }
-                ?>
                 <div class="user-info">
-                    <h1 class="name"><?php echo htmlspecialchars($posts['name'] ?? 'ユーザー名'); ?></h1>
-                        <div class="stats">
-                            <div class="items">
-                                <p>職種</p>
-                                <p><?php echo htmlspecialchars($posts['genre'] ?? 'xx'); ?></p>
-                            </div>
-                            <div class="items">
-                                <p>投稿数</p>
-                                <p><?php echo htmlspecialchars($posts_number['content'] ?? 'xx'); ?></p>
-                            </div>
-                        </div>
+                    <h1 class="name"><?php echo htmlspecialchars($user['user_id'] ?? 'ユーザー名'); ?></h1>
+                    <div class="items">
+                        <p>投稿数</p>
+                        <p><?php echo htmlspecialchars($posts_number['content'] ?? '0'); ?></p>
+                    </div>
                 </div>
             </div>
             <div class="favorite">
@@ -183,7 +184,7 @@ $dbconn = pg_connect("host=localhost dbname=xx user=xx password=xxx");
                 <!-- カードの内容：ループ処理 -->
                 <?php foreach($posts as $post): ?>
                     <div class="card">
-                        <p>投稿日: <?php echo htmlspecialchars($post['created_at']); ?></p>
+                        <p>投稿日: <?php echo htmlspecialchars($post['time']); ?></p>
                         <p>職種: <?php echo htmlspecialchars($post['genre']); ?></p>
                         <p>内容: <?php echo htmlspecialchars($post['content']); ?></p>
                     </div>
