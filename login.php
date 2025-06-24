@@ -20,7 +20,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $user = $stmt->fetch();
         if ($user && password_verify($input_password, $user['password'])) {
             $_SESSION['user_id'] = $user['user_id'];
-            header("Location: mainpage.php");
+            $user_id = $user['user_id']; // これを使ってURLに含める
+            header("Location: /~kose0907/part-time-job/mainpage.php?user_id=" . urlencode($user_id));
             exit();
         } else {
             $error = "ユーザーIDまたはパスワードが間違っています。";

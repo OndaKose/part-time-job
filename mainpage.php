@@ -81,6 +81,17 @@ try {
             font-size: 1.1em;
             color: #333;
         }
+
+        .post-link {
+            text-decoration: none;  /* 下線を消す */
+            display: block;         /* 全体をクリック可能に */
+            color: inherit;         /* 文字色を継承 */
+        }
+
+        .post-link .post:hover {
+            background-color: #eef; /* ホバーで反応見やすく */
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -95,12 +106,14 @@ try {
 </div>
 
 <div class="post-container">
-    <?php foreach ($posts as $post): ?>
-        <div class="post">
-            <div class="genre">[<?= htmlspecialchars($post['genre']) ?>]</div>
-            <div class="content"><?= nl2br(htmlspecialchars($post['content'])) ?></div>
-        </div>
-    <?php endforeach; ?>
+  <?php foreach ($posts as $post): ?>
+    <a href="post_detail.php?id=<?= $post['id'] ?>" class="post-link">
+      <div class="post">
+        <div class="genre">[<?= htmlspecialchars($post['genre']) ?>]</div>
+        <div class="content"><?= nl2br(htmlspecialchars($post['content'])) ?></div>
+      </div>
+    </a>
+  <?php endforeach; ?>
 </div>
 
 </body>
