@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'db_connect.php'; // ← PDO接続（$pdo）が定義されている前提
+require 'db_connect.php';
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -29,173 +29,69 @@ $stmt = $pdo->prepare("SELECT content FROM comments WHERE post_id = ? ORDER BY c
 $stmt->execute([$post_id]);
 $comments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// いいね取得
+// いいね数
 $stmt = $pdo->prepare("SELECT COUNT(*) FROM likes WHERE post_id = ?");
 $stmt->execute([$post_id]);
 $like_count = $stmt->fetchColumn();
-
-// ログイン中ユーザーがいいね済みか
-$liked = false;
-if ($user_id) {
-    $stmt = $pdo->prepare("SELECT 1 FROM likes WHERE post_id = ? AND user_id = ?");
-    $stmt->execute([$post_id, $user_id]);
-    $liked = $stmt->fetchColumn();
-}
 ?>
-
-<!-- 以下 HTML はあなたが貼ってくれたまま + コメント表示部分あり -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
   <title>投稿詳細</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f7fa;
-      margin: 0;
-      padding: 30px;
-      color: #333;
-    }
-
-    .post-card {
-      background: white;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-      max-width: 720px;
-      margin: 0 auto 40px;
-      transition: box-shadow 0.3s ease;
-    }
-
-    .post-card:hover {
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    }
-
-    h2 {
-      color: #007acc;
-      margin-bottom: 16px;
-    }
-
-    .post-content {
-      font-size: 1.1rem;
-      line-height: 1.6;
-      margin-bottom: 24px;
-    }
-
-    .like-button {
-      font-size: 1.3rem;
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: #e74c3c;
-      transition: transform 0.2s ease;
-    }
-
-    .like-button:disabled {
-      opacity: 0.5;
-      cursor: default;
-    }
-
-    .like-button:hover:not(:disabled) {
-      transform: scale(1.3);
-    }
-
-    .comment-section {
-      margin-top: 40px;
-    }
-
-    .comment-section h3 {
-      font-size: 1.2rem;
-      margin-bottom: 15px;
-    }
-
-    .comment {
-      background: #f0f4f9;
-      padding: 12px 16px;
-      border-radius: 8px;
-      margin-bottom: 12px;
-      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-    }
-
-    .comment-form {
-      margin-top: 20px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .comment-form input[type="text"] {
-      flex: 1;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
-
-    .comment-form button {
-      padding: 10px 16px;
-      background-color: #0077cc;
-      border: none;
-      color: white;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .comment-form button:hover {
-      background-color: #005fa3;
-    }
-
-    .back-link {
-      display: block;
-      margin-top: 30px;
-      text-align: center;
-      color: #555;
-      text-decoration: none;
-      font-size: 14px;
-    }
-
-    .back-link:hover {
-      text-decoration: underline;
-    }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-100">
 
-  <div class="post-card">
-    <h2>[<?= htmlspecialchars($post['genre']) ?>]</h2>
-    <p class="post-content"><?= nl2br(htmlspecialchars($post['content'])) ?></p>
+  <!-- ✅ ヘッダー -->
+  <header class="bg-blue-500 text-white py-4 px-6 flex justify-between items-center shadow">
+    <h1 class="text-xl font-semibold">投稿詳細</h1>
+    <nav class="space-x-4">
+      <a href="mainpage.php" class="hover:underline">トップ</a>
+      <a href="profile.php" class="hover:underline">プロフィール</a>
+      <a href="logout.php" class="hover:underline text-red-200">ログアウト</a>
+    </nav>
+  </header>
 
-    <form action="like.php" method="post">
-        <input type="hidden" name="post_id" value="<?= $post_id ?>">
-        <button class="like-button" type="submit">
-            ❤️ <?= $like_count ?>
-        </button>
+  <main class="max-w-3xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold text-blue-600 mb-4">[<?= htmlspecialchars($post['genre']) ?>]</h2>
+    <p class="text-gray-800 whitespace-pre-wrap mb-6"><?= nl2br(htmlspecialchars($post['content'])) ?></p>
+
+    <!-- いいね -->
+    <form action="like.php" method="post" class="mb-6">
+      <input type="hidden" name="post_id" value="<?= $post_id ?>">
+      <button type="submit" class="text-red-500 text-xl hover:scale-125 transition-transform">
+        ❤️ <?= $like_count ?>
+      </button>
     </form>
 
-    <!-- コメント表示 -->
-    <div class="comment-section">
-      <h3>コメント</h3>
+    <!-- コメント一覧 -->
+    <section class="mb-6">
+      <h3 class="text-lg font-semibold mb-3">💬 コメント</h3>
       <?php if (count($comments) > 0): ?>
-        <?php foreach ($comments as $c): ?>
-          <div class="comment"><?= htmlspecialchars($c['content']) ?></div>
-        <?php endforeach; ?>
+        <div class="space-y-3">
+          <?php foreach ($comments as $c): ?>
+            <div class="bg-gray-100 p-3 rounded shadow-inner">
+              <?= htmlspecialchars($c['content']) ?>
+            </div>
+          <?php endforeach; ?>
+        </div>
       <?php else: ?>
-        <p style="color: #999;">まだコメントがありません。</p>
+        <p class="text-gray-500">まだコメントがありません。</p>
       <?php endif; ?>
+    </section>
 
-      <!-- コメント投稿 -->
-      <form class="comment-form" action="comment.php" method="post">
-        <input type="hidden" name="post_id" value="<?= $post_id ?>">
-        <input type="text" name="content" placeholder="コメントを入力..." required>
-        <button type="submit">送信</button>
-      </form>
+    <!-- コメント投稿 -->
+    <form action="comment.php" method="post" class="flex gap-2">
+      <input type="hidden" name="post_id" value="<?= $post_id ?>">
+      <input type="text" name="content" required placeholder="コメントを入力..." class="flex-1 border rounded px-3 py-2">
+      <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">送信</button>
+    </form>
+
+    <!-- 戻るリンク -->
+    <div class="mt-6 text-center">
+      <a href="mainpage.php" class="text-sm text-blue-500 hover:underline">← 投稿一覧に戻る</a>
     </div>
-
-    <a class="back-link" href="mainpage.php">← 投稿一覧に戻る</a>
-  </div>
-
+  </main>
 </body>
 </html>
