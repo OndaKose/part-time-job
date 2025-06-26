@@ -4,7 +4,6 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// 未ログインリダイレクト
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
@@ -29,17 +28,17 @@ $stmt = $pdo->prepare("SELECT * FROM users WHERE user_id = :user_id");
 $stmt->execute(['user_id' => $user_id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// 自分の投稿数
+// 投稿数
 $stmt = $pdo->prepare("SELECT COUNT(*) AS content FROM posts WHERE user_id = :user_id");
 $stmt->execute(['user_id' => $user_id]);
 $posts_number = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// 自分の投稿内容
+// 投稿内容
 $stmt = $pdo->prepare("SELECT * FROM posts WHERE user_id = :user_id ORDER BY time DESC");
 $stmt->execute(['user_id' => $user_id]);
 $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// お気に入り投稿（いいね）
+// お気に入り投稿
 $stmt = $pdo->prepare("
     SELECT posts.* FROM posts
     INNER JOIN likes ON posts.id = likes.post_id
@@ -57,8 +56,14 @@ $favorites = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 font-sans">
-  <header class="bg-blue-500 text-white p-4 text-xl font-bold">
-    プロフィール
+
+  <!-- ✅ ヘッダー -->
+  <header class="bg-blue-500 text-white px-6 py-4 flex justify-between items-center shadow">
+    <h1 class="text-xl font-bold">プロフィール</h1>
+    <nav class="space-x-4 text-sm md:text-base">
+      <a href="mainpage.php" class="hover:underline">トップ</a>
+      <a href="logout.php" class="hover:underline text-red-200">ログアウト</a>
+    </nav>
   </header>
 
   <main class="flex flex-col lg:flex-row p-4 gap-6">
@@ -101,5 +106,6 @@ $favorites = $stmt->fetchAll(PDO::FETCH_ASSOC);
       <?php endif; ?>
     </section>
   </main>
+
 </body>
 </html>

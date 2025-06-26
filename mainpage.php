@@ -15,8 +15,16 @@ try {
     $pdo = new PDO("pgsql:host=$host;dbname=$dbname", $user, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // 投稿を新しい順に取得
-    $stmt = $pdo->query("SELECT * FROM posts ORDER BY id DESC");
+    // 検索条件
+    $genre = $_GET['genre'] ?? '';
+
+    if ($genre && $genre !== '全て') {
+        $stmt = $pdo->prepare("SELECT * FROM posts WHERE genre = :genre ORDER BY id DESC");
+        $stmt->execute(['genre' => $genre]);
+    } else {
+        $stmt = $pdo->query("SELECT * FROM posts ORDER BY id DESC");
+    }
+
     $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
@@ -75,6 +83,27 @@ try {
             font-weight: bold;
         }
 
+        .search-form {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .search-form select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .search-form button {
+            padding: 8px 12px;
+            margin-left: 8px;
+            border-radius: 6px;
+            background-color: #0077cc;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
         .post-container {
             width: 80%;
             max-width: 600px;
@@ -116,7 +145,7 @@ try {
 
 <div class="header">
     <h1>アルバイト投稿一覧</h1>
-    <a href="login.php" class="logout-button">ログアウト</a>
+    <a href="logout.php" class="logout-button">ログアウト</a>
 </div>
 
 <div class="nav">
@@ -124,6 +153,24 @@ try {
     <a href="post.php">投稿する</a>
 </div>
 
+<!-- 🔍 検索フォーム -->
+<div class="search-form">
+    <form method="GET" action="">
+        <label for="genre">ジャンルで絞り込み:</label>
+        <select name="genre" id="genre">
+            <option value="全て">全て</option>
+            <option value="飲食" <?= ($genre === '飲食') ? 'selected' : '' ?>>飲食</option>
+            <option value="販売" <?= ($genre === '販売') ? 'selected' : '' ?>>販売</option>
+            <option value="教育" <?= ($genre === '教育') ? 'selected' : '' ?>>教育</option>
+            <option value="運搬" <?= ($genre === '運搬') ? 'selected' : '' ?>>運搬</option>
+            <option value="事務" <?= ($genre === '事務') ? 'selected' : '' ?>>事務</option>
+            <option value="その他" <?= ($genre === 'その他') ? 'selected' : '' ?>>その他</option>
+        </select>
+        <button type="submit">検索</button>
+    </form>
+</div>
+
+<!-- 投稿一覧 -->
 <div class="post-container">
   <?php foreach ($posts as $post): ?>
     <a href="post_detail.php?id=<?= $post['id'] ?>" class="post-link">
