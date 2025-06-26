@@ -43,6 +43,24 @@ try {
             color: white;
             padding: 15px 30px;
             text-align: center;
+            position: relative;
+        }
+
+        .logout-button {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            background: #fff;
+            color: #0077cc;
+            border: 1px solid #fff;
+            padding: 5px 10px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .logout-button:hover {
+            background-color: #e0e0e0;
         }
 
         .nav {
@@ -83,13 +101,13 @@ try {
         }
 
         .post-link {
-            text-decoration: none;  /* 下線を消す */
-            display: block;         /* 全体をクリック可能に */
-            color: inherit;         /* 文字色を継承 */
+            text-decoration: none;
+            display: block;
+            color: inherit;
         }
 
         .post-link .post:hover {
-            background-color: #eef; /* ホバーで反応見やすく */
+            background-color: #eef;
             cursor: pointer;
         }
     </style>
@@ -98,6 +116,7 @@ try {
 
 <div class="header">
     <h1>アルバイト投稿一覧</h1>
+    <a href="login.php" class="logout-button">ログアウト</a>
 </div>
 
 <div class="nav">

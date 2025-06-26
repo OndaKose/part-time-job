@@ -1,3 +1,12 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+$user_id = (int)$_SESSION['user_id'];
+?>
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -75,7 +84,8 @@
     <div class="form-container">
         <h2>投稿フォーム</h2>
         <form action="submit_post.php" method="post">
-            <input type="hidden" name="user_id" value="1">
+            <!-- セッションから取得したuser_idを埋め込む -->
+            <input type="hidden" name="user_id" value="<?= htmlspecialchars($user_id) ?>">
 
             <label for="genre">ジャンル:</label>
             <select id="genre" name="genre" required>
