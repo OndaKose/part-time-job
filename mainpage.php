@@ -145,7 +145,7 @@ try {
 
 <div class="header">
     <h1>アルバイト投稿一覧</h1>
-    <a href="logout.php" class="logout-button">ログアウト</a>
+    <a href="login.php" class="logout-button">ログアウト</a>
 </div>
 
 <div class="nav">
