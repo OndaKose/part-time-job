@@ -69,7 +69,7 @@ $favorites = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <main class="flex flex-col lg:flex-row p-4 gap-6">
     <!-- 左側プロフィール -->
     <section class="bg-white rounded-lg shadow p-6 w-full lg:w-1/3">
-      <h2 class="text-2xl font-semibold mb-4"><?= htmlspecialchars($user['user_name'] ?? 'ユーザー名') ?></h2>
+      <h2 class="text-2xl font-semibold mb-4"><?= htmlspecialchars($user['user_id'] ?? 'ユーザー名') ?></h2>
       <p class="mb-2"><span class="font-semibold">投稿数:</span> <?= htmlspecialchars($posts_number['content'] ?? '0') ?></p>
 
       <h3 class="text-lg font-semibold mt-6 mb-2">❤️ お気に入り投稿</h3>
